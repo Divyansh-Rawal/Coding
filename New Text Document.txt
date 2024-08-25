@@ -1,0 +1,43 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+
+const app = express();
+const port = process.env.PORT || 3000; // Use environment variable for port
+
+// Replace these with your actual values
+const userId = 'john_doe_17091999';
+const email = 'john@xyz.com';
+const rollNumber = 'ABCD123';
+
+app.use(bodyParser.json());
+
+// POST /bfhl endpoint
+app.post('/bfhl', (req, res) => {
+  const data = req.body.data;
+
+  if (!data || !Array.isArray(data)) {
+    return res.status(400).json({ is_success: false, message: 'Invalid request data' });
+  }
+
+  const numbers = data.filter(item => !isNaN(item));
+  const alphabets = data.filter(item => isNaN(item) && item.toLowerCase() !== item.toUpperCase());
+
+  const highestLowercase = alphabets.length > 0 ? alphabets.reduce((highest, current) => current.toLowerCase() > highest.toLowerCase() ? current : highest) : [];
+
+  res.json({
+    is_success: true,
+    user_id: userId,
+    email,
+    roll_number: rollNumber,
+    numbers,
+    alphabets,
+    highest_lowercase_alphabet: highestLowercase.length > 0 ? [highestLowercase] : [],
+  });
+});
+
+// GET /bfhl endpoint
+app.get('/bfhl', (req, res) => {
+  res.status(200).json({ operation_code: 1 });
+});
+
+app.listen(port, () => console.log(`Server listening on port ${port}`));
